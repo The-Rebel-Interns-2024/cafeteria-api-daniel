@@ -1,7 +1,6 @@
 package com.example.MenuSpring.controllers;
-import com.example.MenuSpring.entities.MainDish;
+import com.example.MenuSpring.dto.MenuDTO;
 import com.example.MenuSpring.entities.Menu;
-import com.example.MenuSpring.repositories.MenuRepository;
 import com.example.MenuSpring.services.MenuService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -17,25 +16,21 @@ import java.util.List;
 public class MenuController {
     private final Logger log= LoggerFactory.getLogger(MenuController.class);
     @Autowired
-    private MenuRepository menuRepository;
-
-    public MenuController(MenuRepository menuRepository) {
-        this.menuRepository = menuRepository;
-    }
+    private MenuService menuService;
 
     @GetMapping("/today")
-    public List<Menu> findTodaysMenu(){
-        MenuService ms= new MenuService();
-        return ms.findToday(menuRepository);
+    public ResponseEntity<List<MenuDTO>> findTodaysMenu(){
+        List<Menu> menus= menuService.findToday();
+        List<MenuDTO> repr= new ArrayList<>();
+        for(Menu m: menus){
+            repr.add(new MenuDTO(m.getName(), m.getPrice()));
+        }
+        return ResponseEntity.ok(repr);
     }
     @PostMapping
-    public ResponseEntity<Menu> addMenu(@RequestBody ArrayList<MainDish> dishes){
-        MenuService ms= new MenuService();
-        for(MainDish md: dishes){
-            Menu menu= new Menu(null, md.getName(),md.getPrice());
-            ms.add(menuRepository,menu);
-        }
-        return null;
+    public ResponseEntity<MenuDTO> addMenu(@RequestBody MenuDTO menuDTO){
+        Menu menu =menuService.add(menuDTO);
+        return ResponseEntity.ok(new MenuDTO(menu.getName(),menu.getPrice()));
     }
 
 }

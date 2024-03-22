@@ -1,7 +1,11 @@
 package com.example.MenuSpring.repositories;
 
-import com.example.MenuSpring.entities.Order;
+import com.example.MenuSpring.entities.ClientOrder;
 import org.springframework.data.jpa.repository.JpaRepository;
 
-public interface OrderRepository extends JpaRepository<Order,Long> {
+import java.time.LocalDate;
+import java.util.List;
+
+public interface OrderRepository extends JpaRepository<ClientOrder,Long> {
+    List<ClientOrder> findByOrderId(Long id);
 }

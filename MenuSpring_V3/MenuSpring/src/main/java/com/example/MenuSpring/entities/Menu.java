@@ -6,28 +6,25 @@ import jakarta.persistence.*;
 import java.io.Serializable;
 import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Objects;
 
 @Entity
 @Table(name = "Menus")
 public class Menu implements Serializable {
-
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
-    @JsonIgnore
+    private Long menuId;
     @Column
     private LocalDate date;
     @Column
     private String name;
     @Column
     private Double price;
-
-    public Menu(Long id, String name, Double price) {
-        this.id = id;
-        this.date = LocalDate.now();
-        this.name = name;
-        this.price = price;
+    @ManyToMany(cascade = {CascadeType.PERSIST,CascadeType.MERGE})
+    @JoinTable(name = "OrderMenu", joinColumns = @JoinColumn(name = "menu_id"), inverseJoinColumns = @JoinColumn(name="clientOrder_id"))
+    private List<ClientOrder> clientOrders= new ArrayList<>();
+    public Menu() {
     }
 
     @Override
@@ -35,15 +32,27 @@ public class Menu implements Serializable {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         Menu menu = (Menu) o;
-        return Objects.equals(id, menu.id);
+        return Objects.equals(menuId, menu.menuId) && Objects.equals(date, menu.date) && Objects.equals(name, menu.name);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(id);
+        return Objects.hash(menuId, date, name);
     }
 
-    public Menu() {
+    public Menu(Long menuId, String name, Double price) {
+        this.menuId = menuId;
+        this.date = LocalDate.now();
+        this.name = name;
+        this.price = price;
+    }
+
+    public Long getMenuId() {
+        return menuId;
+    }
+
+    public void setMenuId(Long menuId) {
+        this.menuId = menuId;
     }
 
     public LocalDate getDate() {
@@ -52,14 +61,6 @@ public class Menu implements Serializable {
 
     public void setDate(LocalDate date) {
         this.date = date;
-    }
-
-    public Long getId() {
-        return id;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
     }
 
     public String getName() {
@@ -78,13 +79,11 @@ public class Menu implements Serializable {
         this.price = price;
     }
 
-    @Override
-    public String toString() {
-        return "Menu{" +
-                "id=" + id +
-                ", date=" + date +
-                ", name='" + name + '\'' +
-                ", price=" + price +
-                '}';
+    public List<ClientOrder> getClientOrders() {
+        return clientOrders;
+    }
+
+    public void setClientOrders(List<ClientOrder> clientOrders) {
+        this.clientOrders = clientOrders;
     }
 }
